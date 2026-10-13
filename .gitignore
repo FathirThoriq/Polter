@@ -1,0 +1,10 @@
+# Artefak build & kemasan
+*.zip
+web-ext-artifacts/
+
+# Sistem & editor
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

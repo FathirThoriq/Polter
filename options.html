@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polter - Pengaturan</title>
+<style>
+  :root{
+    --bg:#0a0a0b; --card:#141416; --text:#f5f5f4; --muted:#a1a1aa;
+    --border:#26262a; --accent:#ffffff; --accent-soft:#1f1f23; --accent-border:#52525b;
+    --ok:#0a0a0b; --ok-bg:#f5f5f4; --err:#fafafa; --err-bg:#26262a;
+    --warn-bg:#17171a; --warn-border:#3f3f46;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);
+    margin:0;padding:32px 20px 64px;line-height:1.55;}
+  .wrap{max-width:680px;margin:0 auto;}
+  header{display:flex;align-items:center;gap:14px;margin-bottom:6px;}
+  header img{width:52px;height:52px;border-radius:14px;}
+  h1{font-size:22px;margin:0;}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 20px;}
+  .note{background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:12px;
+    padding:12px 16px;font-size:13px;margin-bottom:22px;color:var(--text);}
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:24px 0 10px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media (max-width:560px){.grid{grid-template-columns:1fr;}}
+  .prov{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:14px 16px;
+    cursor:pointer;transition:border-color .15s, box-shadow .15s;position:relative;}
+  .prov:hover{border-color:var(--accent-border);}
+  .prov.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+  .prov h3{margin:0 0 2px;font-size:15px;display:flex;align-items:center;gap:8px;}
+  .prov p{margin:0;font-size:12.5px;color:var(--muted);}
+  .badge{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+  .b-free{background:var(--ok-bg);color:var(--ok);}
+  .b-pay{background:var(--accent-soft);color:var(--accent);}
+  .b-own{background:var(--accent-soft);color:var(--accent);}
+  .check{position:absolute;top:12px;right:12px;width:20px;height:20px;border-radius:50%;
+    border:2px solid var(--border);display:flex;align-items:center;justify-content:center;
+    font-size:12px;color:#000;}
+  .prov.sel .check{background:var(--accent);border-color:var(--accent);color:#000;}
+  .prov.sel .check::after{content:"✓";}
+  .fields{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:16px;margin-top:10px;}
+  label{display:block;font-size:12.5px;font-weight:600;margin:12px 0 4px;}
+  label:first-child{margin-top:0;}
+  input[type=text],input[type=password],textarea,select{width:100%;border:1px solid var(--border);
+    border-radius:10px;padding:9px 12px;font-size:13.5px;font-family:inherit;
+    background:var(--bg);color:var(--text);outline:none;}
+  input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+  .oauth-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  .btn-login{background:var(--accent);color:#000;border:none;border-radius:12px;padding:10px 20px;
+    font-size:13.5px;font-weight:700;cursor:pointer;}
+  .btn-login:hover{filter:brightness(.93);}
+  .btn-secondary{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:12px;
+    padding:10px 18px;font-size:13.5px;font-weight:600;cursor:pointer;}
+  .btn-secondary:hover{border-color:var(--accent);}
+  textarea{min-height:96px;resize:vertical;}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:4px;}
+  .httpwarn{display:none;background:var(--warn-bg);border:1px solid var(--warn-border);
+    border-radius:10px;padding:10px 14px;font-size:12.5px;margin-top:10px;}
+  .httpwarn.show{display:block;}
+  .actions{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap;}
+  #save{background:var(--accent);color:#000;border:none;border-radius:12px;padding:11px 30px;
+    font-size:14px;font-weight:700;cursor:pointer;}
+  #save:hover{filter:brightness(.93);}
+  #test,#testVision{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:12px;
+    padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;}
+  #test:hover,#testVision:hover{border-color:var(--accent);}
+  #test:disabled,#testVision:disabled{opacity:.55;cursor:default;}
+  .status{font-size:13px;font-weight:600;}
+  .status.ok{color:var(--ok);}
+  .status.err{color:var(--err);}
+  #testResult{font-size:12.5px;margin-top:10px;padding:10px 14px;border-radius:10px;display:none;}
+  #testResult.ok{display:block;background:var(--ok-bg);color:var(--ok);}
+  #testResult.err{display:block;background:var(--err-bg);color:var(--err);}
+  .links{margin-top:24px;font-size:13px;}
+  .links a{color:var(--accent);}
+  footer{margin-top:36px;font-size:12px;color:var(--muted);text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img id="logo" src="icons/icon128.png" alt="Logo Polter">
+    <div>
+      <h1>Polter</h1>
+      <p class="sub" style="margin:0">Unseen, Unheard, Done. — pengaturan provider</p>
+    </div>
+  </header>
+
+  <div class="note">
+    Catatan jujur: tidak ada "login dengan akun ChatGPT / Claude / Gemini" ala aplikasi konsumen yang resmi untuk extension pihak ketiga.
+    Yang dipakai adalah <b>API key resmi</b> masing-masing provider atau <b>endpoint custom</b> milikmu sendiri (misalnya 9Router).
+    Semua key/token tersimpan lokal di browser ini saja (bukan encrypted vault — siapa pun yang memegang laptop bisa membacanya).
+  </div>
+
+  <h2>1. Pilih provider</h2>
+  <div class="grid">
+    <div class="prov" data-p="custom" role="button" tabindex="0">
+      <div class="check"></div>
+      <h3>Custom <span class="badge b-own">milik sendiri</span></h3>
+      <p>Endpoint OpenAI-compatible apa pun. Mode potret area butuh model yang mendukung gambar (vision).</p>
+    </div>
+    <div class="prov" data-p="muse" role="button" tabindex="0">
+      <div class="check"></div>
+      <h3>Muse (Meta) <span class="badge b-pay">API resmi / bridge</span></h3>
+      <p>Meta Model API (key dari dev.meta.ai) atau Muse Bridge milikmu sendiri. Tidak ada mode login Meta (lihat catatan di README).</p>
+    </div>
+    <div class="prov" data-p="openai" role="button" tabindex="0">
+      <div class="check"></div>
+      <h3>OpenAI <span class="badge b-pay">bayar</span></h3>
+      <p>API key dari platform.openai.com.</p>
+    </div>
+    <div class="prov" data-p="anthropic" role="button" tabindex="0">
+      <div class="check"></div>
+      <h3>Anthropic Claude <span class="badge b-pay">bayar</span></h3>
+      <p>API key dari console.anthropic.com.</p>
+    </div>
+    <div class="prov" data-p="agentrouter" role="button" tabindex="0">
+      <div class="check"></div>
+      <h3>AgentRouter <span class="badge b-own">gateway</span></h3>
+      <p>Gateway agentrouter.org yang hanya menerima klien bergaya Claude Code / OpenCode — Polter meniru sidik jari kliennya (header + User-Agent).</p>
+    </div>
+  </div>
+
+  <h2>2. Isi kredensial</h2>
+  <div class="fields" id="fieldsBox"><!-- diisi options.js --></div>
+
+  <h2>3. Gaya jawaban</h2>
+  <div class="fields">
+    <label for="systemPrompt">System prompt</label>
+    <textarea id="systemPrompt"></textarea>
+    <div class="hint">Instruksi gaya jawaban yang dipakai untuk semua provider.</div>
+  </div>
+
+  <div class="actions">
+    <button id="save">Simpan</button>
+    <button id="test">Tes koneksi (teks)</button>
+    <button id="testVision">Tes vision (gambar)</button>
+    <span class="status" id="status"></span>
+  </div>
+  <div class="hint" style="margin-top:8px">Tes memakai API sungguhan dan bisa kena biaya/kuota. "Tes koneksi" hanya membuktikan teks; "Tes vision" membuktikan model bisa membaca gambar.</div>
+  <div id="testResult"></div>
+
+  <h2>4. Izin akses situs</h2>
+  <div class="fields">
+    <div class="hint">Tab hantu Polter di tepi kiri layar hanya muncul di situs yang izin aksesnya sudah diberikan. Tanpa izin ini, yang tetap bisa dipakai adalah shortcut (Alt+Shift+S / Alt+Shift+D) dan klik ikon ekstensi, karena keduanya meminta akses sesaat. Klik tombol di bawah sekali untuk memberikan izin ke semua situs http/https (sesuai izin opsional yang memang dideklarasikan ekstensi ini), supaya tab dan deteksi otomatis muncul di platform kuis/LMS mana pun, termasuk yang soalnya di dalam iframe.</div>
+    <div class="oauth-row">
+      <button type="button" id="grantSiteAccess" class="btn-login">Aktifkan izin semua situs</button>
+      <span class="hint" id="siteAccessStatus">Status: ...</span>
+    </div>
+    <div class="hint">Di Chrome izin yang sama bisa diatur lewat ikon ekstensi &gt; "This can read and change site data" &gt; "On all sites". Di Firefox: about:addons &gt; Polter &gt; Permissions. Cabut kapan saja dari tempat yang sama.</div>
+  </div>
+
+  <h2>5. Pintasan</h2>
+  <div class="fields">
+    <div class="hint">Deteksi soal/formulir: klik tab hantu Polter di tepi kiri layar lalu pilih "Deteksi Soal di Layar", atau shortcut keyboard (default Alt+Shift+D).</div>
+    <div class="hint">Potret area: dari tab yang sama pilih "Ekstrak dari Foto", klik ikon Polter di toolbar, atau shortcut keyboard.</div>
+    <div class="hint">Buka Library: shortcut keyboard. Atur/ubah shortcut di <b>chrome://extensions/shortcuts</b> (Chrome memilih default bila konflik).</div>
+    <div class="hint">Tampilkan menu: shortcut keyboard (default Alt+Shift+M) — membuka menu awal Polter di halaman aktif, berguna terutama saat tab hantu disembunyikan (lihat bagian 6).</div>
+  </div>
+
+  <h2>6. Tombol hantu</h2>
+  <div class="fields">
+    <label style="display:block;margin:10px 0;font-size:15px"><input type="radio" name="tabmode" id="tabShow" value="show"> Tampilkan tab hantu di tepi layar</label>
+    <label style="display:block;margin:10px 0;font-size:15px"><input type="radio" name="tabmode" id="tabHide" value="hidden"> Sembunyikan tab dari layar</label>
+    <div class="hint">Saat disembunyikan, tab benar-benar hilang dari semua halaman. Panggil menu awal Polter kapan pun dengan shortcut <b>Alt+Shift+M</b> (tekan lagi atau Esc untuk menutup). Untuk menampilkan tab lagi, cukup pilih "Tampilkan" di sini — perubahan langsung berlaku di semua tab yang sedang terbuka, tanpa reload, dan tersimpan otomatis.</div>
+    <div class="hint" id="tabModeStatus"></div>
+  </div>
+
+  <div class="links">
+    <a href="library.html" id="openLibrary">Buka Library Polter</a>
+  </div>
+
+  <footer id="footer">Polter</footer>
+</div>
+<script src="defaults.js"></script>
+<script src="options.js"></script>
+</body>
+</html>

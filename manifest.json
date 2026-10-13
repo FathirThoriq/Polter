@@ -1,0 +1,71 @@
+{
+  "action": {},
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "capture-region": {
+      "description": "Potret area untuk Polter",
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      }
+    },
+    "open-library": {
+      "description": "Buka Library Polter",
+      "suggested_key": {
+        "default": "Alt+Shift+L"
+      }
+    },
+    "detect-questions": {
+      "description": "Deteksi soal di halaman untuk Polter",
+      "suggested_key": {
+        "default": "Alt+Shift+D"
+      }
+    },
+    "toggle-menu": {
+      "description": "Tampilkan/sembunyikan menu Polter",
+      "suggested_key": {
+        "default": "Alt+Shift+M"
+      }
+    }
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "content.js"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "description": "Polter - Unseen, Unheard, Done. Asisten penjawab soal yang bekerja seperti hantu: deteksi soal langsung dari halaman, ekstrak dari potret area atau seleksi teks, jawab dengan AI, lalu isi kembali ke halaman (tanpa submit otomatis).",
+  "host_permissions": [
+    "https://api.anthropic.com/*",
+    "https://api.openai.com/*",
+    "https://api.meta.ai/*"
+  ],
+  "icons": {
+    "128": "icons/icon128.png",
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png"
+  },
+  "manifest_version": 3,
+  "name": "Polter",
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "options_page": "options.html",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "downloads",
+    "declarativeNetRequest"
+  ],
+  "version": "0.8.8"
+}

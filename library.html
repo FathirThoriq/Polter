@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Library - Polter</title>
+<style>
+  :root{
+    --bg:#0a0a0b; --card:#141416; --text:#f5f5f4; --muted:#a1a1aa; --border:#26262a;
+    --accent:#ffffff; --accent-soft:#1f1f23; --ok:#0a0a0b; --ok-bg:#f5f5f4;
+    --err:#fafafa; --err-bg:#26262a; --warn-bg:#17171a;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);
+    margin:0;padding:24px 20px 64px;line-height:1.55;}
+  .wrap{max-width:1020px;margin:0 auto;}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  header h1{font-size:20px;margin:0;}
+  header .sp{flex:1;}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+  input[type=text],input[type=search],textarea,select{border:1px solid var(--border);border-radius:10px;
+    padding:8px 12px;font-size:13px;font-family:inherit;background:var(--card);color:var(--text);outline:none;}
+  input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+  #search{flex:1;min-width:180px;}
+  button{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:10px;
+    padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+  button:hover{border-color:var(--accent);}
+  button.primary{background:var(--accent);color:#000;border-color:var(--accent);}
+  button.danger{color:var(--err);border-color:var(--err);}
+  button:disabled{opacity:.5;cursor:default;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;
+    display:flex;flex-direction:column;}
+  .card .thumb{width:100%;max-height:180px;object-fit:cover;background:#1f1f23;display:block;}
+  .card .cbody{padding:12px 14px;display:flex;flex-direction:column;gap:8px;flex:1;}
+  .card .ctitle{font-weight:700;font-size:14px;margin:0;word-break:break-word;}
+  .card .cmeta{font-size:11.5px;color:var(--muted);}
+  .card .cprev{font-size:12.5px;background:var(--bg);border-radius:8px;padding:8px 10px;
+    white-space:pre-wrap;word-break:break-word;max-height:120px;overflow:auto;margin:0;}
+  .card .ctags{display:flex;gap:6px;flex-wrap:wrap;}
+  .card .ctags span{font-size:11px;background:var(--accent-soft);color:var(--accent);
+    border-radius:12px;padding:2px 9px;}
+  .card .cactions{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:4px;}
+  .card .cactions button{font-size:12px;padding:6px 10px;}
+  .fav{color:#000 !important;background:#f5f5f4 !important;border-color:#f5f5f4 !important;}
+  .empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:14px;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111;color:#fff;
+    padding:10px 18px;border-radius:10px;font-size:13px;z-index:99;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+  dialog{border:1px solid var(--border);border-radius:14px;padding:20px;max-width:560px;width:calc(100vw - 40px);
+    background:var(--card);color:var(--text);}
+  dialog::backdrop{background:rgba(0,0,0,.4);}
+  dialog h3{margin:0 0 12px;font-size:16px;}
+  dialog label{display:block;font-size:12.5px;font-weight:600;margin:10px 0 4px;}
+  dialog textarea{min-height:140px;width:100%;}
+  dialog .drow{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;}
+  #aiPanel{position:fixed;right:16px;bottom:16px;width:380px;max-width:calc(100vw - 32px);
+    max-height:80vh;overflow-y:auto;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.25);padding:14px;z-index:50;display:none;}
+  #aiPanel.show{display:block;}
+  #aiPanel .ans{background:var(--bg);border-radius:8px;padding:10px;font-size:13px;line-height:1.55;
+    max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;margin:8px 0;}
+  #aiPanel .ans:empty{display:none;}
+  .resitem{border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:12.5px;}
+  .resitem .rmeta{color:var(--muted);font-size:11px;margin-bottom:4px;}
+  .stats{font-size:12.5px;color:var(--muted);margin-bottom:12px;}
+  .hiddenfile{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><img src="icons/icon128.png" alt="" style="width:26px;height:26px;border-radius:7px;vertical-align:-6px;margin-right:8px">Library Polter</h1>
+    <span class="sp"></span>
+    <button id="btnExport">Export JSON</button>
+    <button id="btnImport">Import JSON</button>
+    <input type="file" id="fileImport" class="hiddenfile" accept="application/json,.json">
+    <button id="btnSettings">Pengaturan</button>
+  </header>
+
+  <div class="toolbar">
+    <input type="search" id="search" placeholder="Cari judul, isi, tag..." aria-label="Cari snippet">
+    <select id="filterType" aria-label="Filter jenis">
+      <option value="all">Semua jenis</option>
+      <option value="text">Teks</option>
+      <option value="code">Kode</option>
+      <option value="image">Gambar</option>
+    </select>
+    <button id="filterFav" aria-pressed="false">☆ Favorit</button>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">
+    Belum ada snippet tersimpan.<br>Seleksi teks di halaman web lalu klik pil <b>Polter</b> → <b>Simpan</b>,
+    atau potret area lewat menu tab Polter → <b>Simpan</b>.<br><br>Semua tersimpan lokal di browser ini.
+  </div>
+</div>
+
+<div id="aiPanel" role="dialog" aria-label="Proses AI">
+  <h3 id="aiTitle" style="margin:0 0 8px;font-size:15px">Proses AI</h3>
+  <div class="toolbar" id="aiActions" style="margin-bottom:8px"></div>
+  <input type="text" id="aiQuestion" placeholder="Pertanyaan custom (opsional)" style="width:100%;margin-bottom:8px">
+  <div class="ans" id="aiAnswer" aria-live="polite"></div>
+  <div class="toolbar">
+    <button id="aiStop" style="display:none">Stop</button>
+    <button id="aiSaveResult" class="primary" style="display:none">Simpan Hasil</button>
+    <button id="aiCopy" style="display:none">Salin</button>
+    <button id="aiClose">Tutup</button>
+  </div>
+  <div class="hint" id="aiTarget" style="font-size:11.5px;color:var(--muted)"></div>
+</div>
+
+<dialog id="editDialog">
+  <h3>Edit snippet</h3>
+  <label for="editTitle">Judul</label>
+  <input type="text" id="editTitle">
+  <label for="editTags">Tag (pisahkan koma)</label>
+  <input type="text" id="editTags">
+  <label for="editLang">Bahasa kode</label>
+  <input type="text" id="editLang" placeholder="cth: js, python">
+  <label for="editContent">Isi</label>
+  <textarea id="editContent"></textarea>
+  <div class="drow">
+    <button id="editCancel">Batal</button>
+    <button id="editSave" class="primary">Simpan</button>
+  </div>
+</dialog>
+
+<dialog id="resultsDialog">
+  <h3>Hasil AI tersimpan</h3>
+  <div id="resultsList"></div>
+  <div class="drow"><button id="resultsClose">Tutup</button></div>
+</dialog>
+
+<dialog id="importDialog">
+  <h3>Import JSON</h3>
+  <div id="importInfo" style="font-size:13px"></div>
+  <div class="drow">
+    <button id="importCancel">Batal</button>
+    <button id="importConfirm" class="primary">Import</button>
+  </div>
+</dialog>
+
+<script src="defaults.js"></script>
+<script src="storage.js"></script>
+<script src="library.js"></script>
+</body>
+</html>

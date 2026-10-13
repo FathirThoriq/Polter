@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Fixture Manual - Deteksi & Autofill Jawab</title>
+<!--
+  Halaman uji manual untuk fitur deteksi + isi otomatis Jawab v0.4.0.
+  Content script tidak jalan di file://, jadi sajikan folder ini lewat HTTP:
+    cd tests && python3 -m http.server 8765
+  lalu buka http://localhost:8765/manual-autofill.html di browser yang
+  sudah memasang Jawab, klik tombol kaca pembesar (Deteksi), lalu
+  "Jawab Semua dengan AI" dan "Isi Semua ke Halaman".
+  Verifikasi: semua field terisi, dan halaman TIDAK ter-submit
+  (tidak ada navigasi / parameter terkirim) karena ekstensi memang
+  tidak pernah men-submit.
+-->
+<style>
+  body{font-family:system-ui,sans-serif;max-width:640px;margin:32px auto;padding:0 16px;line-height:1.5}
+  fieldset{margin:16px 0}
+  label{display:block;margin:10px 0 4px;font-weight:600}
+  .opt label{display:inline;font-weight:400}
+  input[type=text],input[type=number],select,textarea{width:100%;padding:8px;box-sizing:border-box}
+</style>
+</head>
+<body>
+<h1>Formulir Uji</h1>
+<form id="uji" action="manual-autofill.html" method="get">
+  <label for="nama">Siapa nama presiden pertama Republik Indonesia?</label>
+  <input type="text" id="nama" name="nama">
+
+  <label for="umur">Berapa hasil 12 + 30?</label>
+  <input type="number" id="umur" name="umur">
+
+  <label for="kota">Ibu kota provinsi Jawa Barat adalah?</label>
+  <select id="kota" name="kota">
+    <option value="">-- pilih kota --</option>
+    <option value="sby">Surabaya</option>
+    <option value="bdg">Bandung</option>
+    <option value="jkt">Jakarta</option>
+  </select>
+
+  <fieldset>
+    <legend>Warna apa yang dihasilkan dari campuran biru dan kuning?</legend>
+    <span class="opt"><label><input type="radio" name="warna" value="merah"> Merah</label></span>
+    <span class="opt"><label><input type="radio" name="warna" value="hijau"> Hijau</label></span>
+    <span class="opt"><label><input type="radio" name="warna" value="ungu"> Ungu</label></span>
+  </fieldset>
+
+  <fieldset>
+    <legend>Manakah yang termasuk bilangan prima?</legend>
+    <span class="opt"><label><input type="checkbox" name="prima" value="2"> 2</label></span>
+    <span class="opt"><label><input type="checkbox" name="prima" value="4"> 4</label></span>
+    <span class="opt"><label><input type="checkbox" name="prima" value="7"> 7</label></span>
+    <span class="opt"><label><input type="checkbox" name="prima" value="9"> 9</label></span>
+  </fieldset>
+
+  <label for="alasan">Jelaskan singkat mengapa langit tampak biru?</label>
+  <textarea id="alasan" name="alasan" rows="3"></textarea>
+
+  <p><button type="submit">Kirim (uji manual: ekstensi tidak boleh menekan ini)</button></p>
+</form>
+
+<h2>Bagian soal tanpa field</h2>
+<p>Apa nama ibu kota negara Jepang?</p>
+
+<h2>Bagian kartu jawaban klik (gaya Wayground/Quizizz)</h2>
+<div class="quiz-card">
+  <p class="question-text">Alat yang digunakan untuk menggambar lingkaran adalah</p>
+  <div class="options">
+    <div class="answer-option" style="cursor:pointer" onclick="this.dataset.picked='1'">a. penggaris</div>
+    <div class="answer-option" style="cursor:pointer" onclick="this.dataset.picked='1'">b. jangka</div>
+    <div class="answer-option" style="cursor:pointer" onclick="this.dataset.picked='1'">c. busur derajat</div>
+    <div class="answer-option" style="cursor:pointer" onclick="this.dataset.picked='1'">d. segitiga</div>
+  </div>
+</div>
+<p>Uji manual: deteksi harus menemukan soal kartu di atas (tipe radio, 4 pilihan);
+"Isi" harus mengklik kartu "b. jangka" (cek atribut data-picked di Elements).</p>
+
+<h2>Bagian baris radio visual (gaya Wayground Content View)</h2>
+<div class="wg-card">
+  <h3><p>Classify the following number by naming the set or sets to which it belongs:</p><p>-9</p></h3>
+  <div class="grid">
+    <div class="flex items-start cursor-pointer" style="cursor:pointer" onclick="this.dataset.picked='1'"><div><i class="icon-free-regular-circle"></i></div><div><p>Integer</p></div></div>
+    <div class="flex items-start cursor-pointer" style="cursor:pointer" onclick="this.dataset.picked='1'"><div><i class="icon-free-regular-circle"></i></div><div><p>Rational number</p></div></div>
+    <div class="flex items-start cursor-pointer" style="cursor:pointer" onclick="this.dataset.picked='1'"><div><i class="icon-free-regular-circle"></i></div><div><p>Irrational</p></div></div>
+    <div class="flex items-start cursor-pointer" style="cursor:pointer" onclick="this.dataset.picked='1'"><div><i class="icon-free-regular-circle"></i></div><div><p>Integer and rational numbers</p></div></div>
+  </div>
+</div>
+<p>Uji manual: deteksi harus menemukan soal ini (4 pilihan, dari baris radio visual);
+"Isi" mengklik baris "Integer and rational numbers".</p>
+
+<h2>Bagian radio satu name untuk banyak soal (uji pemisahan grup)</h2>
+<form id="form-satu-name">
+  <fieldset>
+    <legend>Soal A: warna langit?</legend>
+    <label><input type="radio" name="sama" value="biru"> Biru</label>
+    <label><input type="radio" name="sama" value="hijau"> Hijau</label>
+  </fieldset>
+  <fieldset>
+    <legend>Soal B: warna rumput?</legend>
+    <label><input type="radio" name="sama" value="biru"> Biru</label>
+    <label><input type="radio" name="sama" value="hijau"> Hijau</label>
+  </fieldset>
+</form>
+<p>Uji manual: deteksi harus memisahkan Soal A dan Soal B jadi 2 item (bukan 1 grup gabungan),
+karena kontainernya berbeda walau name-nya sama.</p>
+</body>
+</html>
